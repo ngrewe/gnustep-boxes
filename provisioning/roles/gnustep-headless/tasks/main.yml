@@ -10,4 +10,4 @@
     chdir: "{{ gnustep.make.src_dir }}"
 - name: Add GNUstep environment to profile.d
   become: true
-  template: src=halbordnung.de-objc_dev-gnustep_make.sh.j2 dest=/etc/profile.d/halbordnung.de-objc_dev-gnustep-_make.sh owner=root group=root mode=0644
+  template: src=halbordnung.de-objc_dev-gnustep_make.sh.j2 dest=/etc/profile.d/halbordnung.de-objc_dev-gnustep_make.sh owner=root group=root mode=0644
