@@ -1,0 +1,9 @@
+[submodule "libobcj2"]
+	path = libobjc2
+	url = https://github.com/gnustep/libobjc2
+[submodule "libdispatch"]
+	path = libdispatch
+	url = https://github.com/ngrewe/libdispatch.git
+[submodule "gnustep-make"]
+	path = gnustep-make
+	url = https://github.com/gnustep/make.git

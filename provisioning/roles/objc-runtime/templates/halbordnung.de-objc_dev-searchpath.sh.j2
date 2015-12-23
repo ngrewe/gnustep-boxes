@@ -1,0 +1,6 @@
+#!/bin/sh
+# {{ ansible_managed }}
+# This script is installed in /etc/profile.d to add things installed  in
+# /usr/local/ to the default library and header search path of the compiler
+export LIBRARY_PATH=/usr/local/lib:$LIBRARY_PATH
+export CPATH=/usr/local/include:$CPATH

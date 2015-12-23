@@ -1,0 +1,54 @@
+---
+- name: Install build tooling packages
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+       - subversion
+       - git
+       - automake
+       - autoconf
+       - make
+       - libtool
+       - m4
+       - zip
+       - unzip
+       - cmake
+       - g++
+       - lemon
+       - zlib1g-dev
+- name: Install ninja build tool
+  apt: pkg=ninja-build state=installed
+  become: true
+  when: llvm.generator == 'Ninja'
+- name: Register make as the LLVM build tool fact
+  set_fact:
+    llvm_buildtool: make
+  when: llvm.generator != 'Ninja'
+- name: Register ninja as the LLVM build tool fact
+  set_fact:
+    llvm_buildtool: ninja
+  when: llvm.generator == 'Ninja'
+- name: Checkout LLVM
+  subversion: repo={{ llvm.llvm_repo }} dest={{ llvm.src_dir }}
+  register: llvm_checkout
+- name: Checkout clang
+  subversion: repo={{ llvm.clang_repo }} dest={{ llvm.src_dir }}/tools/clang
+  register: clang_checkout
+- name: Create llvm build directory
+  file: path={{ llvm.build_dir }} state=directory
+- name: Generate build files
+  command: cmake -G "{{ llvm.generator }}" -DCMAKE_BUILD_TYPE={{ llvm.build_type }} -DLLVM_TARGETS_TO_BUILD={{ llvm.targets }} {{ llvm.src_dir }} chdir={{ llvm.build_dir }}
+  when: llvm_checkout.changed or clang_checkout.changed
+- name: Build LLVM/clang 
+  command: "{{ llvm_buildtool }} chdir={{ llvm.build_dir }}"
+  when: llvm_checkout.changed or clang_checkout.changed
+- name: Install LLVM/clang
+  command: "{{ llvm_buildtool }} install chdir={{ llvm.build_dir }}"
+  become: true
+  when: llvm_checkout.changed or clang_checkout.changed
+- name: Set clang as the default C compiler
+  become: true
+  alternatives: name=cc path=/usr/local/bin/clang
+- name: Set clang++ as the default C++ compiler
+  become: true
+  alternatives: name=c++ path=/usr/local/bin/clang++

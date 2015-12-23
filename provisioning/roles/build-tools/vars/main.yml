@@ -1,0 +1,13 @@
+---
+build_root: "{{ ansible_env.HOME }}/builds"
+
+# This environment uses clang 3.7.1. You can tweak the URLs if you want to
+# track some branch or trunk.
+llvm:
+    llvm_repo: https://llvm.org/svn/llvm-project/llvm/tags/RELEASE_371/final/
+    clang_repo: https://llvm.org/svn/llvm-project/cfe/tags/RELEASE_371/final/
+    targets: "X86;ARM;AArch64;Mips"
+    build_type: "Release"
+    src_dir: "{{ ansible_env.HOME }}/llvm"
+    build_dir: "{{ build_root }}/llvm"
+    generator: "Ninja"

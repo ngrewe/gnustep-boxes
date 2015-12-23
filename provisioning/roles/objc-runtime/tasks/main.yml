@@ -1,0 +1,29 @@
+---
+- name: Create libobjc2 build directory
+  file: path={{ build_root }}/libobjc2 state=directory
+- name: Generate libobjc2 build files
+  command: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DGNUSTEP_INSTALL_TYPE=NONE {{ libobjc2_src_dir }} chdir={{ build_root }}/libobjc2
+- name: Build libobjc2
+  command: make chdir={{ build_root }}/libobjc2
+- name: Install libobjc2
+  command: make install chdir={{ build_root }}/libobjc2
+  become: true
+- name: Add compiler search paths
+  template: src=halbordnung.de-objc_dev-searchpath.sh.j2 dest=/etc/profile.d/halbordnung.de-objc_dev-searchpath.sh owner=root group=root mode=0644
+  become: true
+- name: Install libdispatch dependencies
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+    - libkqueue-dev
+    - libpthread-workqueue-dev
+- name: Create libdispatch build directory
+  file: path={{ build_root }}/libdispatch state=directory
+- name: Generate libdispatch build files
+  command: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo {{ libdispatch_src_dir }} chdir={{ build_root }}/libdispatch
+- name: Build libdispatch
+  command: make chdir={{ build_root }}/libdispatch
+- name: Install libdispatch
+  command: make install chdir={{ build_root }}/libdispatch
+  become: true
+

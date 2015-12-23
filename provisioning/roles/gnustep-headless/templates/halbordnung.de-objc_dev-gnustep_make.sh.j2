@@ -1,0 +1,10 @@
+#!/bin/sh
+# {{ ansible_managed }}
+# This script is installed in /etc/profile.d to automatically source the
+# GNUstep Makefiles environment and set up the compiler flags 
+# (some GNUstep software is not very smart when it comes to detecting 
+#  compilers)
+
+export CC=clang
+export CXX=clang++
+. /usr/local/share/GNUstep/Makefiles/GNUstep.sh

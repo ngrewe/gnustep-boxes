@@ -1,0 +1,5 @@
+---
+build_root: "{{ ansible_env.HOME }}/builds"
+libobjc2_src_dir: "/vagrant/libobjc2"
+libdispatch_src_dir: "/vagrant/libdispatch"
+
