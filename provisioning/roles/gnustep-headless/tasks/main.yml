@@ -11,3 +11,31 @@
 - name: Add GNUstep environment to profile.d
   become: true
   template: src=halbordnung.de-objc_dev-gnustep_make.sh.j2 dest=/etc/profile.d/halbordnung.de-objc_dev-gnustep_make.sh owner=root group=root mode=0644
+- name: Install GNUstep base dev dependencies
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:                  
+       - pkg-config
+       - libgnutls28-dev
+       - libgmp-dev
+       - libffi-dev
+       - libicu-dev
+       - libxml2-dev
+       - libxslt1-dev
+       - libssl-dev
+       - libavahi-client-dev
+- name: Configure gnustep-base
+  command: "./configure --with-gdomap-port={{gnustep.base.gdomap_port}} --with-sort-algorithm={{gnustep.base.sort_alg}} CC=cc CXX=c++"
+  args: 
+    chdir: "{{ gnustep.base.src_dir }}"
+- name: Build gnustep-base
+  command: make  
+  args: 
+    chdir: "{{ gnustep.base.src_dir }}"
+- name: Install gnustep-base
+  become: true
+  command: make install  
+  args: 
+    chdir: "{{ gnustep.base.src_dir }}"
+  notify:
+    - run ldconfig

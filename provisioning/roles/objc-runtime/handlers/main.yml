@@ -1,0 +1,3 @@
+- name: run ldconfig
+  become: yes
+  command: /sbin/ldconfig

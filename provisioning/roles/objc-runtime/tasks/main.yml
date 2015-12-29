@@ -8,6 +8,8 @@
 - name: Install libobjc2
   command: make install chdir={{ build_root }}/libobjc2
   become: true
+  notify: 
+    - run ldconfig
 - name: Add compiler search paths
   template: src=halbordnung.de-objc_dev-searchpath.sh.j2 dest=/etc/profile.d/halbordnung.de-objc_dev-searchpath.sh owner=root group=root mode=0644
   become: true
@@ -26,4 +28,6 @@
 - name: Install libdispatch
   command: make install chdir={{ build_root }}/libdispatch
   become: true
+  notify: 
+    - run ldconfig
 

@@ -7,3 +7,6 @@
 [submodule "gnustep-make"]
 	path = gnustep-make
 	url = https://github.com/gnustep/make.git
+[submodule "gnustep-base"]
+	path = gnustep-base
+	url = https://github.com/gnustep/base.git
