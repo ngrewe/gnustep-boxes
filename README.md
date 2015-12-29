@@ -21,8 +21,7 @@ Requirements
 Included components
 -------------------
 
-The ansible playbook includes the following components:
-
+The ansible playbook includes the following components
 
 ### LLVM and clang
 
@@ -31,7 +30,7 @@ The provisioner builds LLVM and clang version 3.7.1 from source. The build will
 be a release build with the X86, ARM, AArch64 and Mips targets enabled. The
 reason for doing this is that the clang packages that ship with Debian/Ubuntu
 depend on the Objective-C runtime shipped with GCC, which does not support
-things like ARC etc., so we do not want to include it.
+things like ARC etc.
 
 ### GNUstep Objective-C runtime
 
@@ -46,13 +45,19 @@ the libBlocksRuntime library.
 libdispatch provides a thread-pool and work scheduling abstraction centered
 around execution of blocks. libdispatch is included as a git submodule tracking
 a fork of [nickhutchinson/libdispatch](https://github.com/nickhutchinson/libdispatch)
-that allows it to work with the GNUstep Objective-C runtime.
+that allows it to work with the GNUstep Objective-C runtime instead of
+libBlocksRuntime.
 
 ### GNUstep Make
 
 GNUstep Make is a set of makefiles for GNU make that constitutes the build
 system used to build GNUstep applications. The git submodule references the
 github mirror of the GNUstep SVN repository.
+
+### GNUstep Base
+
+GNUstep Base is the GNUstep implementation of the Foundation API. The git
+submodule references the github mirror of the GNUstep SVN repository.
 
 *Others forthcoming*
 
