@@ -141,7 +141,7 @@ Known Issues
 
 * If you upgrade the kernel shipped with the box, you will also need to rebuild
   the VM integration kernel modules.
-* Linking clang is memory intensive. The Vagrantfile use to test the provisioning
+* Linking clang is memory intensive. The Vagrantfile used to test the provisioning
   allocates 3GB of RAM to the virtual machine. If that still gives you failures
   when building LLVM/clang, trying increasing this value or allocating some more
   swap to the VM.
