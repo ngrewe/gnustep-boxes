@@ -46,8 +46,6 @@ export GUI applications from the VM to your host:
 vagrant ssh -- -Y Gorm
 ```
 
-
-
 Components
 ----------
 
@@ -136,6 +134,20 @@ faster after the initial run (modulo any changes).
 * You can work on local changes to the git submodules and rebuild everything
 automatically.
 
+Building boxes using packer
+---------------------------
+
+We build the boxes in two passes: First the headless image (build tools, runtime
+gnustep-base) and then the GUI one based on the output of the first:
+
+```
+packer build gnustep-headless-debian-8-x64.json
+packer build gnustep-gui-debian-8-x64.json
+```
+
+The resulting Vagrant boxes are placed in the `builds/` directory.
+Intermediate artifacts may be available in the `output-*` directories.
+
 Known Issues
 ------------
 
@@ -145,6 +157,8 @@ Known Issues
   allocates 3GB of RAM to the virtual machine. If that still gives you failures
   when building LLVM/clang, trying increasing this value or allocating some more
   swap to the VM.
+* There is no makefile to orchestrate building both the headless and then the
+  gui image.
 
 License and Authors
 -------
