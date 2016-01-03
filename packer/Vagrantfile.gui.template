@@ -1,0 +1,4 @@
+Vagrant.configure(2) do |config|
+  # X11 forwarding for GUI apps
+  config.ssh.forward_x11 = true
+end

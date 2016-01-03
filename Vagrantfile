@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "quarkslab/debian-8.2.0-amd64"
+  config.vm.box = "ngrewe/gnustep-gui"
   config.ssh.forward_x11 = true
   config.ssh.forward_agent = true
 

@@ -8,27 +8,32 @@ The main idea is to spin up a virtual machine and install all the software
 required to begin developing Objective-C applications on Linux using GNUstep,
 regardless of whether the host system is a Mac OS, Windows or Linux machine.
 
+This works by bootstrapping a basic Debian system into a virtual machine using
+[packer](https://www.packer.io) and then adding the required dependencies and
+GNUstep components into it using [ansible](http://www.ansible.com), finally
+converting the VMs to [Vagrant](https://www.vagrantup.com) boxes.
+
+The ansible playbook can also be run outside a VM context on any Linux system
+that uses apt as a package manager. Since it modifies system behaviour
+extensively, this is only recommended if you understand the consequences.
+
 Requirements
 ------------
-* [Vagrant](https://www.vagrantup.com), a tool to automate setup of virtual
-  machines
-* A virtual machine hypervisor supported by Vagrant (e.g. VirtualBox).
-* [Ansible](https://ansible.com), used to provision the required software into
-  the VM.
+* Vagrant
+* Virtual Box or VMWare Fusion/Workstation
 * If you intended to run GUI applications from within the VM: An X server.
 
-Running using Vagrant
-----------------------
-To provision the machine, make sure you have installed the required software and
-type in this directory:
+Getting Started
+---------------
+To clone an instance of the vagrant box, run the following in an empty directory:
 
 ```
+vagrant init ngrewe/gnustep-gui
 vagrant up
 ```
 
-This will download the base image and run the ansible provisioner on it. Since
-it downloads and builds a lot of sofware (especially LLVM/clang) this will take
-quite a while. When the machine is up you can ssh into it using:
+This will download and install the GUI development image. If you don't need
+GUI components you can use `ngrewe/gnustep-headless` instead.
 
 ```
 vagrant ssh
@@ -38,7 +43,7 @@ If you are running the VM on a host that provides an X server, you can even
 export GUI applications from the VM to your host:
 
 ```
-vagrant ssh -- Gorm
+vagrant ssh -- -Y Gorm
 ```
 
 
@@ -46,7 +51,7 @@ vagrant ssh -- Gorm
 Components
 ----------
 
-### Headless Playbook
+### Headless
 
 The main provisioning run by ansible is implemented by a number of roles that
 are layered unto each other. The basic useful role is the gnustep-headless role
@@ -66,10 +71,9 @@ things like ARC etc.
 The GNUstep Objective-C runtime is included as a git submodule, tracking the
 master branch on github. This provides not only the Objective-C runtime
 interface, but also the blocks runtime that would conventionally be provided by
-the libBlocksRuntime library.
+compiler-rt or the libBlocksRuntime library.
 
 #### libdispatch
-
 
 libdispatch provides a thread-pool and work scheduling abstraction centered
 around execution of blocks. libdispatch is included as a git submodule tracking
@@ -81,7 +85,8 @@ libBlocksRuntime.
 
 GNUstep Make is a set of makefiles for GNU make that constitutes the build
 system used to build GNUstep applications. The git submodule references the
-github mirror of the GNUstep SVN repository.
+github mirror of the GNUstep SVN repository. GNUstep make is configured to use
+the non-fragile ABI.
 
 #### GNUstep Base
 
@@ -96,9 +101,9 @@ testing because it's not the default.
 that it can run as a normal user without special privileges. It's automatically
 started by a systemd unit.
 
-### GUI Playbook
+### GUI
 
-On top of that the GUI playbook provides the following:
+On top of that the gnustep-gui play provides the following:
 
 #### GNUstep GUI
 
@@ -117,17 +122,29 @@ It is configured for a cairo/X11 backend.
 Gorm is the interface builder for GNUstep.
 The git submodule references the github mirror of the GNUstep SVN repository.
 
+### Vagrantfile
+
+The project also includes a Vagrantfile that runs the provisioning playbook on
+an existing box (using `vagrant provision`). This provides the following
+advantages over building a new box using packers and is hence useful to quickly
+test changes:
+
+* OS image download and installation can be skipped.
+* While only few operations in the playbook are actually idempotent,
+they are at least *similipotent* (so to speak), meaning that they will complete
+faster after the initial run (modulo any changes).
+* You can work on local changes to the git submodules and rebuild everything
+automatically.
+
 Known Issues
 ------------
 
-* The base image for VMware hypervisors doesn't seem to install the tools
-  correctly that are required for mounting the shared folder. A workaround is
-  to manually ssh into the machine (`vagrant ssh`) and execute
-  `sudo vmware-config-tools.pl` to rebuild the kernel modules. If the system is
-  missing kernel headers, try running `sudo apt-get install linux-headers-amd64`.
-* Linking clang is memory intensive. The Vagrantfile allocates 3GB of RAM to
-  the virtual machine. If that still gives you failures when building LLVM/clang,
-  trying increasing this value or allocating some swap to the VM.
+* If you upgrade the kernel shipped with the box, you will also need to rebuild
+  the VM integration kernel modules.
+* Linking clang is memory intensive. The Vagrantfile use to test the provisioning
+  allocates 3GB of RAM to the virtual machine. If that still gives you failures
+  when building LLVM/clang, trying increasing this value or allocating some more
+  swap to the VM.
 
 License and Authors
 -------

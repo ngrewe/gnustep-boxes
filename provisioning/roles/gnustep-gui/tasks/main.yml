@@ -95,12 +95,20 @@
   notify:
     - run ldconfig
 
+- name: Clean gorm repo to avoid problems
+  command: make clean
+  args:
+      chdir: "{{ gnustep.gorm.src_dir }}"
+  tags:
+      - dev-dependencies
+
 - name: Build gorm
   command: make
   args:
       chdir: "{{ gnustep.gorm.src_dir }}"
   tags:
       - dev-dependencies
+
 - name: Install gorm
   become: true
   command: make install

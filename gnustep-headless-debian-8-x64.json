@@ -1,0 +1,204 @@
+{
+    "description": "GNUstep Virtual Development Environment",
+    "variables": {
+        "cpus": "2",
+        "basename": "gnustep-debian-8-x64",
+        "template_name": "gnustep-headless-debian-8-x64",
+        "memory": "3072",
+        "disk_size": "40960",
+        "ssh_port": "22",
+        "ssh_wait_timeout": "10000s",
+        "build_headless": "true",
+        "netinst_url": "http://cdimage.debian.org/debian-cd/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-netinst.iso",
+        "netinst_sha512": "923cd1bfbfa62d78aecaa92d919ee54a95c8fca834b427502847228cf06155e7243875f59279b0bf6bfd1b579cbe2f1bc80528a265dafddee9a9d2a197ef3806",
+        "locale": "en_US",
+        "keymap": "us",
+        "atlas_artifact": "ngrewe/gnustep-headless",
+        "atlas_version": "0.0.1",
+        "atlas_description": "A basic set of tools for GNUstep development, based on Debian 8."
+    },
+    "builders": [
+        {   "type": "vmware-iso",
+            "boot_command":  [
+                "<esc><wait>",
+                "install <wait>",
+                "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+                "debian-installer={{user `locale`}} <wait>",
+                "auto <wait>",
+                "locale={{user `locale`}} <wait>",
+                "kbd-chooser/method=us <wait>",
+                "netcfg/get_hostname={{ .Name }} <wait>",
+                "netcfg/get_domain=vagrantup.com <wait>",
+                "fb=false <wait>",
+                "debconf/frontend=noninteractive <wait>",
+                "console-setup/ask_detect=false <wait>",
+                "console-keymaps-at/keymap={{user `keymap`}} <wait>",
+                "keyboard-configuration/xkb-keymap={{user `keymap`}} <wait>",
+                "<enter><wait>"
+            ],
+            "boot_wait": "10s",
+            "disk_size": "{{user `disk_size`}}",
+            "guest_os_type": "debian8-64",
+            "http_directory": "packer/http",
+            "iso_url": "{{user `netinst_url`}}",
+            "iso_checksum_type": "sha512",
+            "iso_checksum": "{{user `netinst_sha512`}}",
+            "shutdown_command": "echo 'vagrant' | sudo -S /sbin/shutdown -hP now",
+            "ssh_port": "{{user `ssh_port`}}",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+            "ssh_username": "vagrant",
+            "ssh_password": "vagrant",
+            "headless": "{{user `build_headless`}}",
+            "tools_upload_flavor": "linux",
+            "vm_name": "{{user `basename`}}",
+            "output_directory": "output-{{user `template_name`}}-vmware",
+            "vmx_data": {
+                "cpuid.coresPerSocket": "1",
+                "memsize": "{{user `memory`}}",
+                "numvcpus": "{{user `cpus`}}"
+            }
+        },
+        {
+            "type": "virtualbox-iso",
+            "boot_command":  [
+                "<esc><wait>",
+                "install <wait>",
+                "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+                "debian-installer={{user `locale`}} <wait>",
+                "auto <wait>",
+                "locale={{user `locale`}} <wait>",
+                "kbd-chooser/method=us <wait>",
+                "netcfg/get_hostname={{ .Name }} <wait>",
+                "netcfg/get_domain=vagrantup.com <wait>",
+                "fb=false <wait>",
+                "debconf/frontend=noninteractive <wait>",
+                "console-setup/ask_detect=false <wait>",
+                "console-keymaps-at/keymap={{user `keymap`}} <wait>",
+                "keyboard-configuration/xkb-keymap={{user `keymap`}} <wait>",
+                "<enter><wait>"
+            ],
+            "boot_wait": "10s",
+            "hard_drive_interface": "sata",
+            "disk_size": "{{user `disk_size`}}",
+            "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+            "guest_os_type": "Debian_64",
+            "http_directory": "packer/http",
+            "iso_url": "{{user `netinst_url`}}",
+            "iso_checksum_type": "sha512",
+            "iso_checksum": "{{user `netinst_sha512`}}",
+            "shutdown_command": "echo 'vagrant' | sudo -S /sbin/shutdown -hP now",
+            "ssh_port": "{{user `ssh_port`}}",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+            "ssh_username": "vagrant",
+            "ssh_password": "vagrant",
+            "headless": "{{user `build_headless`}}",
+            "vm_name": "{{user `basename`}}",
+            "output_directory": "output-{{user `template_name`}}-vbox",
+            "vboxmanage": [
+                [ "modifyvm", "{{.Name}}", "--memory", "{{user `memory`}}" ],
+                [ "modifyvm", "{{.Name}}", "--cpus", "{{user `cpus`}}" ]
+            ],
+            "virtualbox_version_file": ".vbox_version",
+            "vm_name": "{{user `basename`}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "execute_command": "echo 'vagrant'|sudo -S sh -eux '{{.Path}}'",
+            "scripts": [
+                "packer/scripts/00-packages.sh",
+                "packer/scripts/00-vagrant.sh"
+            ]
+        },
+        {
+            "type": "shell",
+            "execute_command": "echo 'vagrant'|sudo -S sh '{{.Path}}'",
+            "override": {
+                "vmware-iso": {
+                    "scripts": [
+                        "packer/scripts/vmware/01-vmtools.sh"
+                    ]
+                },
+                "virtualbox-iso": {
+                    "scripts": [
+                        "packer/scripts/vbox/01-vmtools.sh"
+                    ]
+                }
+
+            }
+        },
+        {
+            "type": "shell",
+            "execute_command": "echo 'vagrant'|sudo -S sh -eux '{{.Path}}'",
+            "scripts": [
+                "packer/scripts/01-sshd.sh",
+                "packer/scripts/02-ansible.sh"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "libobjc2",
+            "destination": "/vagrant/libobjc2"
+        },
+        {
+            "type": "file",
+            "source": "libdispatch",
+            "destination": "/vagrant/libdispatch"
+        },
+        {
+            "type": "file",
+            "source": "gnustep-make",
+            "destination": "/vagrant/gnustep-make"
+        },
+        {
+            "type": "file",
+            "source": "gnustep-base",
+            "destination": "/vagrant/gnustep-base"
+        },
+        {
+            "type": "ansible-local",
+            "playbook_dir": "provisioning",
+            "playbook_file": "provisioning/site.yml",
+            "inventory_groups": "headless"
+        },
+        {
+            "type": "shell",
+            "execute_command": "echo 'vagrant'|sudo -S sh -eux '{{.Path}}'",
+            "scripts": [
+                "packer/scripts/98-grub.sh",
+                "packer/scripts/99-cleanup.sh"
+            ]
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "vagrant",
+            "output": "builds/{{user `template_name`}}-{{.Provider}}.box",
+            "keep_input_artifact": true,
+            "only": ["virtualbox-iso", "vmware-iso"]
+        },
+        {
+            "type": "atlas",
+            "only": ["vmware-iso"],
+            "artifact": "{{user `atlas_artifact`}}",
+            "artifact_type": "vagrant.box",
+            "metadata": {
+                "provider": "vmware_desktop",
+                "version": "{{user `atlas_version`}}",
+                "description": "{{user `atlas_description`}}"
+            }
+        },
+        {
+            "type": "atlas",
+            "only": ["virtualbox-iso"],
+            "artifact": "{{user `atlas_artifact`}}",
+            "artifact_type": "vagrant.box",
+            "metadata": {
+                "provider": "virtualbox",
+                "version": "{{user `atlas_version`}}",
+                "description": "{{user `atlas_description`}}"
+            }
+        }
+    ]
+}

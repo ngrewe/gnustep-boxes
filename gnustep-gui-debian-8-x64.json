@@ -1,0 +1,119 @@
+{
+    "description": "GNUstep Virtual Development Environment",
+    "variables": {
+        "cpus": "2",
+        "basename": "gnustep-debian-8-x64",
+        "template_name": "gnustep-gui-debian-8-x64",
+        "build_headless": "true",
+        "memory": "2048",
+        "ssh_port": "22",
+        "ssh_wait_timeout": "10000s",
+        "atlas_artifact": "ngrewe/gnustep-gui",
+        "atlas_version": "0.0.1",
+        "atlas_description": "A basic set of development tools for GNUstep GUI development, based on Debian 8."
+    },
+    "builders": [
+        {
+            "type": "virtualbox-ovf",
+            "source_path": "output-gnustep-headless-debian-8-x64-vbox/{{user `basename`}}.ovf",
+            "shutdown_command": "echo 'vagrant' | sudo -S /sbin/shutdown -hP now",
+            "ssh_port": "{{user `ssh_port`}}",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+            "ssh_username": "vagrant",
+            "ssh_password": "vagrant",
+            "headless": "{{ user `build_headless`}}",
+            "guest_additions_mode": "disable",
+            "output_directory": "output-{{user `template_name`}}-vbox",
+            "vboxmanage": [
+                [ "modifyvm", "{{.Name}}", "--memory", "{{user `memory`}}" ],
+                [ "modifyvm", "{{.Name}}", "--cpus", "{{user `cpus`}}" ]
+            ],
+            "vm_name": "{{user `basename`}}"
+        },
+        {
+            "type": "vmware-vmx",
+            "source_path": "output-gnustep-headless-debian-8-x64-vmware/{{user `basename`}}.vmx",
+            "shutdown_command": "echo 'vagrant' | sudo -S /sbin/shutdown -hP now",
+            "ssh_port": "{{user `ssh_port`}}",
+            "ssh_wait_timeout": "{{user `ssh_wait_timeout`}}",
+            "ssh_username": "vagrant",
+            "ssh_password": "vagrant",
+            "headless": "{{ user `build_headless`}}",
+            "output_directory": "output-{{user `template_name`}}-vmware",
+            "vmx_data": {
+                "cpuid.coresPerSocket": "1",
+                "memsize": "{{user `memory`}}",
+                "numvcpus": "{{user `cpus`}}"
+            },
+            "vm_name": "{{user `basename`}}"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "execute_command": "echo 'vagrant'|sudo -S sh -eux '{{.Path}}'",
+            "scripts": [
+                "packer/scripts/02-ansible.sh"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "gnustep-gui",
+            "destination": "/vagrant/gnustep-gui"
+        },
+        {
+            "type": "file",
+            "source": "gnustep-back",
+            "destination": "/vagrant/gnustep-back"
+        },
+        {
+            "type": "file",
+            "source": "gorm",
+            "destination": "/vagrant/gorm"
+        },
+        {
+            "type": "ansible-local",
+            "playbook_dir": "provisioning",
+            "playbook_file": "provisioning/site.yml",
+            "inventory_groups": "gui",
+            "extra_arguments": [ "--skip-tags=stage1" ]
+        },
+        {
+            "type": "shell",
+            "execute_command": "echo 'vagrant'|sudo -S sh -eux '{{.Path}}'",
+            "scripts": [
+                "packer/scripts/99-cleanup.sh"
+            ]
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "vagrant",
+            "output": "builds/{{user `template_name`}}-{{.Provider}}.box",
+            "vagrantfile_template": "packer/Vagrantfile.gui.template",
+            "only": [ "virtualbox-ovf", "vmware-vmx" ]
+        },
+        {
+            "type": "atlas",
+            "only": ["vmware-vmx"],
+            "artifact": "{{user `atlas_artifact`}}",
+            "artifact_type": "vagrant.box",
+            "metadata": {
+                "provider": "vmware_desktop",
+                "version": "{{user `atlas_version`}}",
+                "description": "{{user `atlas_description`}}"
+            }
+        },
+        {
+            "type": "atlas",
+            "only": ["virtualbox-ovf"],
+            "artifact": "{{user `atlas_artifact`}}",
+            "artifact_type": "vagrant.box",
+            "metadata": {
+                "provider": "virtualbox",
+                "version": "{{user `atlas_version`}}",
+                "description": "{{user `atlas_description`}}"
+            }
+        }
+    ]
+}
