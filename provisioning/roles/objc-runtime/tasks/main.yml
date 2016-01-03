@@ -8,17 +8,27 @@
 - name: Install libobjc2
   command: make install chdir={{ build_root }}/libobjc2
   become: true
-  notify: 
+  notify:
     - run ldconfig
 - name: Add compiler search paths
   template: src=halbordnung.de-objc_dev-searchpath.sh.j2 dest=/etc/profile.d/halbordnung.de-objc_dev-searchpath.sh owner=root group=root mode=0644
   become: true
-- name: Install libdispatch dependencies
+- name: Install libdispatch runtime dependencies
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+    - libkqueue0
+    - libpthread-workqueue0
+  tags:
+      - rt-dependencies
+- name: Install libdispatch dev dependencies
   apt: pkg={{item}} state=installed
   become: true
   with_items:
     - libkqueue-dev
     - libpthread-workqueue-dev
+  tags:
+      - dev-dependencies
 - name: Create libdispatch build directory
   file: path={{ build_root }}/libdispatch state=directory
 - name: Generate libdispatch build files
@@ -28,6 +38,5 @@
 - name: Install libdispatch
   command: make install chdir={{ build_root }}/libdispatch
   become: true
-  notify: 
+  notify:
     - run ldconfig
-

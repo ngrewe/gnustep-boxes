@@ -1,0 +1,16 @@
+# Unit file for gdomap
+# {{ansible_managed}}
+[Unit]
+Description=GNUstep Distributed Objects Name Server
+After=network.target
+
+[Service]
+User={{gnustep.base.gdomap.user}}
+Group={{gnustep.base.gdomap.group}}
+Type=forking
+ExecStart=/usr/local/bin/gdomap
+Restart=on-abort
+
+
+[Install]
+WantedBy=multi-user.target

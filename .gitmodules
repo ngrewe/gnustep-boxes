@@ -10,3 +10,12 @@
 [submodule "gnustep-base"]
 	path = gnustep-base
 	url = https://github.com/gnustep/base.git
+[submodule "gnustep-back"]
+	path = gnustep-back
+	url = https://github.com/gnustep/back.git
+[submodule "gnustep-gui"]
+	path = gnustep-gui
+	url = https://github.com/gnustep/gui.git
+[submodule "gorm"]
+	path = gorm
+	url = https://github.com/gnustep/gorm.git

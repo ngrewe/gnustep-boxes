@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: gnustep-headless, tags: [ 'stage1' ] }

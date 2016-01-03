@@ -5,9 +5,8 @@ This project orchestrates a couple of components to facilitate bootstrapping a
 development environment for 'modern' Objective-C in a Linux setting.
 
 The main idea is to spin up a virtual machine and install all the software
-required to begin developing Objective-C applications on Linux on it
-automatically, regardless of whether the host system is a Mac OS, Windows or
-Linux machine.
+required to begin developing Objective-C applications on Linux using GNUstep,
+regardless of whether the host system is a Mac OS, Windows or Linux machine.
 
 Requirements
 ------------
@@ -16,15 +15,45 @@ Requirements
 * A virtual machine hypervisor supported by Vagrant (e.g. VirtualBox).
 * [Ansible](https://ansible.com), used to provision the required software into
   the VM.
+* If you intended to run GUI applications from within the VM: An X server.
+
+Running using Vagrant
+----------------------
+To provision the machine, make sure you have installed the required software and
+type in this directory:
+
+```
+vagrant up
+```
+
+This will download the base image and run the ansible provisioner on it. Since
+it downloads and builds a lot of sofware (especially LLVM/clang) this will take
+quite a while. When the machine is up you can ssh into it using:
+
+```
+vagrant ssh
+```
+
+If you are running the VM on a host that provides an X server, you can even
+export GUI applications from the VM to your host:
+
+```
+vagrant ssh -- Gorm
+```
 
 
-Included components
--------------------
 
-The ansible playbook includes the following components
+Components
+----------
 
-### LLVM and clang
+### Headless Playbook
 
+The main provisioning run by ansible is implemented by a number of roles that
+are layered unto each other. The basic useful role is the gnustep-headless role
+that provides the following components for developing Objective-C applications
+without a GUI:
+
+#### LLVM and clang
 
 The provisioner builds LLVM and clang version 3.7.1 from source. The build will
 be a release build with the X86, ARM, AArch64 and Mips targets enabled. The
@@ -32,14 +61,14 @@ reason for doing this is that the clang packages that ship with Debian/Ubuntu
 depend on the Objective-C runtime shipped with GCC, which does not support
 things like ARC etc.
 
-### GNUstep Objective-C runtime
+#### GNUstep Objective-C runtime
 
 The GNUstep Objective-C runtime is included as a git submodule, tracking the
 master branch on github. This provides not only the Objective-C runtime
 interface, but also the blocks runtime that would conventionally be provided by
 the libBlocksRuntime library.
 
-### libdispatch
+#### libdispatch
 
 
 libdispatch provides a thread-pool and work scheduling abstraction centered
@@ -48,19 +77,45 @@ a fork of [nickhutchinson/libdispatch](https://github.com/nickhutchinson/libdisp
 that allows it to work with the GNUstep Objective-C runtime instead of
 libBlocksRuntime.
 
-### GNUstep Make
+#### GNUstep Make
 
 GNUstep Make is a set of makefiles for GNU make that constitutes the build
 system used to build GNUstep applications. The git submodule references the
 github mirror of the GNUstep SVN repository.
 
-### GNUstep Base
+#### GNUstep Base
 
 GNUstep Base is the GNUstep implementation of the Foundation API. The git
-submodule references the github mirror of the GNUstep SVN repository.
+submodule references the github mirror of the GNUstep SVN repository. The
+library has the following configuration points to note:
 
-*Others forthcoming*
+* It's configured to use the timsort sorting algorithm. It's the most performant
+of the available algorithms for real-world workloads, but it hasn't seen much
+testing because it's not the default.
+* The distributed objects nameserver (gdomap) has been moved to a port > 1024 so
+that it can run as a normal user without special privileges. It's automatically
+started by a systemd unit.
 
+### GUI Playbook
+
+On top of that the GUI playbook provides the following:
+
+#### GNUstep GUI
+
+GNUstep GUI provides an AppKit implementation with plugabble eventing and
+rendering mechanisms. The git submodule references the github mirror of the
+GNUstep SVN repository.
+
+#### GNUstep Back
+
+GNUstep Back implements the concrete rendering and event handling for GUI.
+The git submodule references the github mirror of the GNUstep SVN repository.
+It is configured for a cairo/X11 backend.
+
+#### GORM
+
+Gorm is the interface builder for GNUstep.
+The git submodule references the github mirror of the GNUstep SVN repository.
 
 Known Issues
 ------------
@@ -74,11 +129,15 @@ Known Issues
   the virtual machine. If that still gives you failures when building LLVM/clang,
   trying increasing this value or allocating some swap to the VM.
 
-License
+License and Authors
 -------
 
-The referenced modules are covered by their respective licenses. The original
-content in this project is governed by the MIT License:
+The referenced git submodules are covered by their respective licenses.
+
+Some of the packer provisioning scripts originate from [chef/bento](https://github.com/chef/bento),
+licensed under the Apache license.
+
+The original content in this project is governed by the MIT License:
 
 Copyright (c) 2015 Niels Grewe
 

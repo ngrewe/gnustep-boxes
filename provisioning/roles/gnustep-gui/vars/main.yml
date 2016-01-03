@@ -1,0 +1,9 @@
+---
+build_root: "{{ ansible_env.HOME }}/builds"
+gnustep:
+  back:
+   src_dir: "/vagrant/gnustep-back"
+  gui:
+    src_dir: "/vagrant/gnustep-gui"
+  gorm:
+    src_dir: "/vagrant/gorm"    

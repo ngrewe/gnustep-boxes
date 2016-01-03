@@ -1,0 +1,118 @@
+---
+- name: Install GNUstep GUI runtime dependencies
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+       - libgif4
+       - libtiff5
+       - libjpeg62
+       - libpng12-0
+       - libicns1
+       - libicu52
+       - libaspell15
+       - libcups2
+       - libaudiofile1
+       - libportaudio2
+  tags:
+    - rt-dependencies
+
+- name: Install GNUstep GUI dev dependencies
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+       - libgif-dev
+       - libtiff-dev
+       - libjpeg-dev
+       - libpng12-dev
+       - libicns-dev
+       - libicu-dev
+       - libaspell-dev
+       - libcups2-dev
+       - libaudiofile-dev
+       - portaudio19-dev
+  tags:
+    - dev-dependencies
+
+- name: Configure gnustep-gui
+  command: "./configure"
+  args:
+    chdir: "{{ gnustep.gui.src_dir }}"
+
+- name: Build gnustep-gui
+  command: make
+  args:
+    chdir: "{{ gnustep.gui.src_dir }}"
+
+- name: Install gnustep-gui
+  become: true
+  command: make install
+  args:
+    chdir: "{{ gnustep.gui.src_dir }}"
+  notify:
+    - run ldconfig
+
+- name: Install GNUstep back runtime dependencies
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+       - libcairo2
+       - libxt6
+       - libgl1-mesa-glx
+       - libxcursor1
+       - libxft2
+       - libxmu6
+  tags:
+    - rt-dependencies
+
+- name: Install GNUstep back dev dependencies
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+       - libcairo2-dev
+       - libxt-dev
+       - libgl1-mesa-dev
+       - libxcursor-dev
+       - libxft-dev
+       - libxmu-dev
+  tags:
+    - dev-dependencies
+
+- name: Configure gnustep-back
+  command: "./configure"
+  args:
+    chdir: "{{ gnustep.back.src_dir }}"
+
+- name: Build gnustep-back
+  command: make
+  args:
+    chdir: "{{ gnustep.back.src_dir }}"
+
+- name: Install gnustep-back
+  become: true
+  command: make install
+  args:
+    chdir: "{{ gnustep.back.src_dir }}"
+  notify:
+    - run ldconfig
+
+- name: Build gorm
+  command: make
+  args:
+      chdir: "{{ gnustep.gorm.src_dir }}"
+  tags:
+      - dev-dependencies
+- name: Install gorm
+  become: true
+  command: make install
+  args:
+      chdir: "{{ gnustep.gorm.src_dir }}"
+  tags:
+    - dev-dependencies
+
+- name: Install xauth for Gorm
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+       - xauth
+  tags:
+    - dev-dependencies

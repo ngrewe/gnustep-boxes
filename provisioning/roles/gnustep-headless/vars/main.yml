@@ -2,10 +2,11 @@
 build_root: "{{ ansible_env.HOME }}/builds"
 gnustep:
   make:
-   src_dir: "/vagrant/gnustep-make" 
+   src_dir: "/vagrant/gnustep-make"
   base:
     src_dir: "/vagrant/gnustep-base"
-    gdomap_port: 6006
+    gdomap:
+      port: 6006
+      user: gdomap
+      group: gdomap
     sort_alg: "timsort"
-
-

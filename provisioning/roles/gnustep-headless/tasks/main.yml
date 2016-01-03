@@ -1,20 +1,35 @@
 ---
 - name: Configure gnustep-make
   command: ./configure --with-library-combo=ng-gnu-gnu --enable-objc-nonfragile-abi CC=cc CXX=c++
-  args: 
+  args:
     chdir: "{{ gnustep.make.src_dir }}"
 - name: Install gnustep-make
   become: true
-  command: make install 
+  command: make install
   args:
     chdir: "{{ gnustep.make.src_dir }}"
 - name: Add GNUstep environment to profile.d
   become: true
   template: src=halbordnung.de-objc_dev-gnustep_make.sh.j2 dest=/etc/profile.d/halbordnung.de-objc_dev-gnustep_make.sh owner=root group=root mode=0644
+- name: Install GNUstep base runtime dependencies
+  apt: pkg={{item}} state=installed
+  become: true
+  with_items:
+       - libgnutls-deb0-28
+       - libgmp10
+       - libffi6
+       - libicu52
+       - libxml2
+       - libxslt1.1
+       - libssl1.0.0
+       - libavahi-client3
+       - zlib1g
+  tags:
+    - rt-dependencies
 - name: Install GNUstep base dev dependencies
   apt: pkg={{item}} state=installed
   become: true
-  with_items:                  
+  with_items:
        - pkg-config
        - libgnutls28-dev
        - libgmp-dev
@@ -24,18 +39,44 @@
        - libxslt1-dev
        - libssl-dev
        - libavahi-client-dev
+       - zlib1g-dev
+  tags:
+    - dev-dependencies
+
 - name: Configure gnustep-base
-  command: "./configure --with-gdomap-port={{gnustep.base.gdomap_port}} --with-sort-algorithm={{gnustep.base.sort_alg}} CC=cc CXX=c++"
-  args: 
+  command: "./configure --with-gdomap-port={{gnustep.base.gdomap.port}} --with-sort-algorithm={{gnustep.base.sort_alg}} CC=cc CXX=c++"
+  args:
     chdir: "{{ gnustep.base.src_dir }}"
 - name: Build gnustep-base
-  command: make  
-  args: 
+  command: make
+  args:
     chdir: "{{ gnustep.base.src_dir }}"
 - name: Install gnustep-base
   become: true
-  command: make install  
-  args: 
+  command: make install
+  args:
     chdir: "{{ gnustep.base.src_dir }}"
   notify:
     - run ldconfig
+
+- name: Create user to run gdomap
+  become: true
+  user: name={{gnustep.base.gdomap.user}} system=yes
+
+- name: Create group to run gdomap
+  become: true
+  group: name={{gnustep.base.gdomap.group}} system=yes
+
+- name: Add gdomap service unit
+  become: true
+  template: src=gdomap.service.j2 dest=/etc/systemd/system/gdomap.service
+  register: install_gdomap
+
+- name: Notify systemd about gdomap unit
+  become: true
+  command: systemctl daemon-reload
+  when: install_gdomap.changed == True
+
+- name: Start gdomap
+  become: true
+  service: name=gdomap state=started enabled=yes
