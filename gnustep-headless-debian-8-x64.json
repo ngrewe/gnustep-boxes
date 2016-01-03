@@ -14,7 +14,7 @@
         "locale": "en_US",
         "keymap": "us",
         "atlas_artifact": "ngrewe/gnustep-headless",
-        "atlas_version": "0.0.1",
+        "atlas_version": "0.0.2",
         "atlas_description": "A basic set of tools for GNUstep development, based on Debian 8."
     },
     "builders": [
@@ -172,33 +172,35 @@
         }
     ],
     "post-processors": [
-        {
-            "type": "vagrant",
-            "output": "builds/{{user `template_name`}}-{{.Provider}}.box",
-            "keep_input_artifact": true,
-            "only": ["virtualbox-iso", "vmware-iso"]
-        },
-        {
-            "type": "atlas",
-            "only": ["vmware-iso"],
-            "artifact": "{{user `atlas_artifact`}}",
-            "artifact_type": "vagrant.box",
-            "metadata": {
-                "provider": "vmware_desktop",
-                "version": "{{user `atlas_version`}}",
-                "description": "{{user `atlas_description`}}"
+        [
+            {
+                "type": "vagrant",
+                "output": "builds/{{user `template_name`}}-{{.Provider}}.box",
+                "keep_input_artifact": true,
+                "only": ["virtualbox-iso", "vmware-iso"]
+            },
+            {
+                "type": "atlas",
+                "only": ["vmware-iso"],
+                "artifact": "{{user `atlas_artifact`}}",
+                "artifact_type": "vagrant.box",
+                "metadata": {
+                    "provider": "vmware_desktop",
+                    "version": "{{user `atlas_version`}}",
+                    "description": "{{user `atlas_description`}}"
+                }
+            },
+            {
+                "type": "atlas",
+                "only": ["virtualbox-iso"],
+                "artifact": "{{user `atlas_artifact`}}",
+                "artifact_type": "vagrant.box",
+                "metadata": {
+                    "provider": "virtualbox",
+                    "version": "{{user `atlas_version`}}",
+                    "description": "{{user `atlas_description`}}"
+                }
             }
-        },
-        {
-            "type": "atlas",
-            "only": ["virtualbox-iso"],
-            "artifact": "{{user `atlas_artifact`}}",
-            "artifact_type": "vagrant.box",
-            "metadata": {
-                "provider": "virtualbox",
-                "version": "{{user `atlas_version`}}",
-                "description": "{{user `atlas_description`}}"
-            }
-        }
+        ]
     ]
 }

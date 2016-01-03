@@ -9,7 +9,7 @@
         "ssh_port": "22",
         "ssh_wait_timeout": "10000s",
         "atlas_artifact": "ngrewe/gnustep-gui",
-        "atlas_version": "0.0.1",
+        "atlas_version": "0.0.2",
         "atlas_description": "A basic set of development tools for GNUstep GUI development, based on Debian 8."
     },
     "builders": [
@@ -87,33 +87,35 @@
         }
     ],
     "post-processors": [
-        {
-            "type": "vagrant",
-            "output": "builds/{{user `template_name`}}-{{.Provider}}.box",
-            "vagrantfile_template": "packer/Vagrantfile.gui.template",
-            "only": [ "virtualbox-ovf", "vmware-vmx" ]
-        },
-        {
-            "type": "atlas",
-            "only": ["vmware-vmx"],
-            "artifact": "{{user `atlas_artifact`}}",
-            "artifact_type": "vagrant.box",
-            "metadata": {
-                "provider": "vmware_desktop",
-                "version": "{{user `atlas_version`}}",
-                "description": "{{user `atlas_description`}}"
+        [
+            {
+                "type": "vagrant",
+                "output": "builds/{{user `template_name`}}-{{.Provider}}.box",
+                "vagrantfile_template": "packer/Vagrantfile.gui.template",
+                "only": [ "virtualbox-ovf", "vmware-vmx" ]
+            },
+            {
+                "type": "atlas",
+                "only": ["vmware-vmx"],
+                "artifact": "{{user `atlas_artifact`}}",
+                "artifact_type": "vagrant.box",
+                "metadata": {
+                    "provider": "vmware_desktop",
+                    "version": "{{user `atlas_version`}}",
+                    "description": "{{user `atlas_description`}}"
+                }
+            },
+            {
+                "type": "atlas",
+                "only": ["virtualbox-ovf"],
+                "artifact": "{{user `atlas_artifact`}}",
+                "artifact_type": "vagrant.box",
+                "metadata": {
+                    "provider": "virtualbox",
+                    "version": "{{user `atlas_version`}}",
+                    "description": "{{user `atlas_description`}}"
+                }
             }
-        },
-        {
-            "type": "atlas",
-            "only": ["virtualbox-ovf"],
-            "artifact": "{{user `atlas_artifact`}}",
-            "artifact_type": "vagrant.box",
-            "metadata": {
-                "provider": "virtualbox",
-                "version": "{{user `atlas_version`}}",
-                "description": "{{user `atlas_description`}}"
-            }
-        }
+        ]
     ]
 }
