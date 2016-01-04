@@ -11,7 +11,7 @@ regardless of whether the host system is a Mac OS, Windows or Linux machine.
 This works by bootstrapping a basic Debian system into a virtual machine using
 [packer](https://www.packer.io) and then adding the required dependencies and
 GNUstep components into it using [ansible](http://www.ansible.com), finally
-converting the VMs to [Vagrant](https://www.vagrantup.com) boxes.
+exported the VMs to [Vagrant](https://www.vagrantup.com) boxes.
 
 The ansible playbook can also be run outside a VM context on any Linux system
 that uses apt as a package manager. Since it modifies system behaviour
