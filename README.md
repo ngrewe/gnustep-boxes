@@ -11,7 +11,7 @@ regardless of whether the host system is a Mac OS, Windows or Linux machine.
 This works by bootstrapping a basic Debian system into a virtual machine using
 [packer](https://www.packer.io) and then adding the required dependencies and
 GNUstep components into it using [ansible](http://www.ansible.com), finally
-exported the VMs to [Vagrant](https://www.vagrantup.com) boxes.
+exporting the VMs to [Vagrant](https://www.vagrantup.com) boxes.
 
 The ansible playbook can also be run outside a VM context on any Linux system
 that uses apt as a package manager. Since it modifies system behaviour
@@ -33,7 +33,8 @@ vagrant up
 ```
 
 This will download and install the GUI development image. If you don't need
-GUI components you can use `ngrewe/gnustep-headless` instead.
+GUI components you can use `ngrewe/gnustep-headless` instead. After this process has
+finished, you can ssh into the box using
 
 ```
 vagrant ssh
@@ -62,7 +63,7 @@ The provisioner builds LLVM and clang version 3.7.1 from source. The build will
 be a release build with the X86, ARM, AArch64 and Mips targets enabled. The
 reason for doing this is that the clang packages that ship with Debian/Ubuntu
 depend on the Objective-C runtime shipped with GCC, which does not support
-things like ARC etc.
+things like ARC etc. and introduces a confusion that we want to avoid.
 
 #### GNUstep Objective-C runtime
 
@@ -111,20 +112,22 @@ GNUstep SVN repository.
 
 #### GNUstep Back
 
-GNUstep Back implements the concrete rendering and event handling for GUI.
+GNUstep Back implements the concrete rendering and event handling for gnustep-gui.
 The git submodule references the github mirror of the GNUstep SVN repository.
 It is configured for a cairo/X11 backend.
 
-#### GORM
+#### Gorm
 
-Gorm is the interface builder for GNUstep.
+Gorm is the interface builder for GNUstep. While you should be able to use nibs build by
+Apple's InterfaceBuilder on GNUstep, it's quite useful to have the ability to sanity check
+and tweak the GNUstep UIs using Gorm.
 The git submodule references the github mirror of the GNUstep SVN repository.
 
 ### Vagrantfile
 
 The project also includes a Vagrantfile that runs the provisioning playbook on
 an existing box (using `vagrant provision`). This provides the following
-advantages over building a new box using packers and is hence useful to quickly
+advantages over building a new box using packer and is hence useful to quickly
 test changes:
 
 * OS image download and installation can be skipped.
@@ -132,12 +135,12 @@ test changes:
 they are at least *similipotent* (so to speak), meaning that they will complete
 faster after the initial run (modulo any changes).
 * You can work on local changes to the git submodules and rebuild everything
-automatically.
+quickly.
 
 Building boxes using packer
 ---------------------------
 
-We build the boxes in two passes: First the headless image (build tools, runtime
+We build the boxes in two passes: First the headless image (build tools, runtime, and
 gnustep-base) and then the GUI one based on the output of the first:
 
 ```
