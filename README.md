@@ -1,5 +1,5 @@
-Virtual Objective-C Development Environment
-===========================================
+Vagrant Boxes for GNUstep Development
+=====================================
 
 This project orchestrates a couple of components to facilitate bootstrapping a
 development environment for 'modern' Objective-C in a Linux setting.
