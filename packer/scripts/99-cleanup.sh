@@ -40,6 +40,10 @@ dpkg --list \
 
 echo "Removing ansible"
 pip uninstall -y ansible
+
+echo "Removing all other locally installed python packages"
+rm -rf /usr/local/lib/python2.7
+
 apt-get -y purge libyaml-dev python-dev python-pip
 
 # Delete obsolete networking
