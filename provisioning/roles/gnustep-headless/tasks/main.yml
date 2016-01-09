@@ -62,21 +62,31 @@
 - name: Create user to run gdomap
   become: true
   user: name={{gnustep.base.gdomap.user}} system=yes
+  tags:
+      - gdomap
 
 - name: Create group to run gdomap
   become: true
   group: name={{gnustep.base.gdomap.group}} system=yes
+  tags:
+      - gdomap
 
 - name: Add gdomap service unit
   become: true
   template: src=gdomap.service.j2 dest=/etc/systemd/system/gdomap.service
   register: install_gdomap
+  tags:
+      - gdomap
 
 - name: Notify systemd about gdomap unit
   become: true
   command: systemctl daemon-reload
   when: install_gdomap.changed == True
+  tags:
+      - gdomap
 
 - name: Start gdomap
   become: true
   service: name=gdomap state=started enabled=yes
+  tags:
+      - gdomap

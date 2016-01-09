@@ -1,4 +1,5 @@
 .vagrant
+.tmp
 # Cache objects
 packer_cache/
 

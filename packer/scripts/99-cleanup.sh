@@ -56,15 +56,19 @@ apt-get -y autoremove
 apt-get -y clean
 
 echo "Removing build files"
-rm -rf /home/vagrant/builds
-rm -rf /home/vagrant/llvm
+rm -rf $HOME/builds
+rm -rf $HOME/llvm
 
-echo "Removing sources"
-rm -rf /vagrant/*
+if [ "x$PACKER_BUILDER_TYPE" != "xdocker" ]
+then
+  # The docker builder doesn't need the rest of the cleanup. It uses a bind
+  # mounted source volume and doesn't benefit from any disk cleanup.
+  echo "Removing sources"
+  rm -rf /vagrant/*
 
 
 echo "cleaning up dhcp leases"
-rm /var/lib/dhcp/*
+rm -f /var/lib/dhcp/*
 
 # Make sure Udev doesn't block our network
 echo "cleaning up udev rules"
@@ -97,3 +101,4 @@ rm -f /EMPTY;
 # Block until the empty file has been removed, otherwise, Packer
 # will try to kill the box while the disk is still full and that's bad
 sync;
+fi

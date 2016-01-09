@@ -100,16 +100,40 @@
             ],
             "virtualbox_version_file": ".vbox_version",
             "vm_name": "{{user `basename`}}"
+        },
+        {
+            "type": "docker",
+            "image": "debian:jessie",
+            "volumes": {
+                "{{pwd}}": "/vagrant"
+            },
+            "export_path": "output-{{user `template_name`}}-docker-image.tar"
         }
     ],
     "provisioners": [
         {
             "type": "shell",
+            "execute_command": "echo 'vagrant'|sudo -S env {{ .Vars }} sh -eux '{{.Path}}'",
+            "scripts": [
+                "packer/scripts/00-packages.sh"
+            ],
+            "override": {
+               "docker": {
+                   "scripts": [
+                       "packer/scripts/docker/00-packages.sh",
+                       "packer/scripts/00-packages.sh"
+                   ],
+                   "execute_command" : "env {{ .Vars }} sh -eux '{{.Path}}'"
+               }
+            }
+        },
+        {
+            "type": "shell",
             "execute_command": "echo 'vagrant'|sudo -S sh -eux '{{.Path}}'",
             "scripts": [
-                "packer/scripts/00-packages.sh",
                 "packer/scripts/00-vagrant.sh"
-            ]
+            ],
+            "only": [ "vmware-iso", "virtualbox-iso"]
         },
         {
             "type": "shell",
@@ -125,8 +149,8 @@
                         "packer/scripts/vbox/01-vmtools.sh"
                     ]
                 }
-
-            }
+            },
+            "only": [ "vmware-iso", "virtualbox-iso"]
         },
         {
             "type": "shell",
@@ -134,41 +158,66 @@
             "scripts": [
                 "packer/scripts/01-sshd.sh",
                 "packer/scripts/02-ansible.sh"
-            ]
+            ],
+            "override": {
+               "docker": {
+                   "scripts": [
+                       "packer/scripts/02-ansible.sh"
+                   ],
+                   "execute_command" : "sh -eux '{{.Path}}'"
+               }
+            }
         },
         {
             "type": "file",
             "source": "libobjc2",
-            "destination": "/vagrant/libobjc2"
+            "destination": "/vagrant/libobjc2",
+            "except": [ "docker" ]
         },
         {
             "type": "file",
             "source": "libdispatch",
-            "destination": "/vagrant/libdispatch"
+            "destination": "/vagrant/libdispatch",
+            "except": [ "docker" ]
         },
         {
             "type": "file",
             "source": "gnustep-make",
-            "destination": "/vagrant/gnustep-make"
+            "destination": "/vagrant/gnustep-make",
+            "except": [ "docker" ]
         },
         {
             "type": "file",
             "source": "gnustep-base",
-            "destination": "/vagrant/gnustep-base"
+            "destination": "/vagrant/gnustep-base",
+            "except": [ "docker" ]
         },
         {
             "type": "ansible-local",
             "playbook_dir": "provisioning",
             "playbook_file": "provisioning/site.yml",
-            "inventory_groups": "headless"
+            "inventory_groups": "headless",
+            "override": {
+                "docker": {
+                    "extra_arguments": [ "-vvv", "--skip-tags=gdomap" ]
+                }
+            }
         },
         {
             "type": "shell",
-            "execute_command": "echo 'vagrant'|sudo -S sh -eux '{{.Path}}'",
+            "execute_command": "echo 'vagrant'|sudo -S env {{ .Vars }} sh -eux '{{.Path}}'",
             "scripts": [
                 "packer/scripts/98-grub.sh",
                 "packer/scripts/99-cleanup.sh"
-            ]
+            ],
+            "override": {
+               "docker": {
+                   "scripts": [
+                       "packer/scripts/99-cleanup.sh"
+                   ],
+                   "execute_command" : "env {{ .Vars }} sh -eux '{{.Path}}'"
+               }
+            }
         }
     ],
     "post-processors": [
