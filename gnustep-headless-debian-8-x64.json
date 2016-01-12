@@ -204,7 +204,8 @@
             "inventory_groups": "headless",
             "override": {
                 "docker": {
-                    "extra_arguments": [ "--skip-tags=gdomap" ]
+                    "extra_arguments": [ "--skip-tags=gdomap" ],
+                    "inventory_groups": "headless,docker-{{user `container_flavour`}}"
                 }
             }
         },

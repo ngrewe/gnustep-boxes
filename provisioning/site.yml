@@ -3,6 +3,9 @@
     - name: Update apt cache if needed.
       apt: update_cache=yes cache_valid_time=3600
       become: true
+- hosts: docker-dev
+  roles:
+      - { role: docker, tags: [ 'docker' ] }
 - hosts: headless
   roles:
     - { role: gnustep-headless, tags: [ 'stage1' ] }

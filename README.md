@@ -1,5 +1,5 @@
-Vagrant Boxes for GNUstep Development
-=====================================
+Virtual GNUstep Development Environments
+========================================
 
 This project orchestrates a couple of components to facilitate bootstrapping a
 development environment for 'modern' Objective-C in a Linux setting.
@@ -10,8 +10,9 @@ regardless of whether the host system is a Mac OS, Windows or Linux machine.
 
 This works by bootstrapping a basic Debian system into a virtual machine using
 [packer](https://www.packer.io) and then adding the required dependencies and
-GNUstep components into it using [ansible](http://www.ansible.com), finally
-exporting the VMs to [Vagrant](https://www.vagrantup.com) boxes.
+GNUstep components into it using [ansible](http://www.ansible.com). The virtual
+machine can either be a true VM that is exported as a
+[Vagrant](https://www.vagrantup.com) box, or a lightweight Docker container.
 
 The ansible playbook can also be run outside a VM context on any Linux system
 that uses apt as a package manager. Since it modifies system behaviour
@@ -19,12 +20,22 @@ extensively, this is only recommended if you understand the consequences.
 
 Requirements
 ------------
+
+### Vagrant Boxes
+
 * Vagrant
 * Virtual Box or VMWare Fusion/Workstation
 * If you intended to run GUI applications from within the VM: An X server.
 
+### Docker Containers
+
+* Docker
+
 Getting Started
 ---------------
+
+### Vagrant Boxes
+
 To clone an instance of the vagrant box, run the following in an empty directory:
 
 ```
@@ -45,6 +56,27 @@ export GUI applications from the VM to your host:
 
 ```
 vagrant ssh -- -Y Gorm
+```
+
+### Docker Containers
+
+The builder produces two ‘flavours’ of images. The first one is the
+`gnustep-headless-dev` image, which contains all the compile-time
+dependencies *and* a Docker binary. The intended use of this is to share
+the docker socket from your docker host with the container and run a build script
+that compiles a Objective-C application and installs it in container derived
+from the `gnustep-headless-rt` flavoured runtime image.
+
+To pull the dev image, execute:
+
+```
+docker pull ngrewe/gnustep-headless-dev
+```
+
+Similarly, the runtime image can be obtained using
+
+```
+docker pull ngrewe/gnustep-headless-rt
 ```
 
 Components

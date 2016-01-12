@@ -1,0 +1,16 @@
+---
+- name: Install docker apt key
+  apt_key: keyserver=p80.pool.sks-keyservers.net id=58118E89F3A912897C070ADBF76221572C52609D
+  become: true
+
+- name: Install https apt transport
+  apt: pkg=apt-transport-https state=installed
+  become: true
+
+- name: Install docker apt repository
+  apt_repository: repo="deb https://apt.dockerproject.org/repo debian-jessie main" state=present update_cache=true
+  become: true
+
+- name: Install docker-engine
+  apt: pkg=docker-engine state=installed
+  become: true
