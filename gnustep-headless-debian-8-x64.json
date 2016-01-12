@@ -16,7 +16,8 @@
         "atlas_artifact": "ngrewe/gnustep-headless",
         "atlas_version": "0.0.2",
         "atlas_description": "A basic set of tools for GNUstep development, based on Debian 8.",
-        "container_flavour": "dev"
+        "container_flavour": "dev",
+        "container_tag": "latest"
     },
     "builders": [
         {   "type": "vmware-iso",
@@ -260,6 +261,14 @@
                     "description": "{{user `atlas_description`}}"
                 }
             }
-        ]
+        ],
+        [
+            {
+                "type": "docker-import",
+                "repository": "ngrewe/gnustep-headless-{{user `container_flavour`}}",
+                "tag": "{{user `container_tag`}}",
+                "only": [ "docker" ]
+            }
+       ]
     ]
 }

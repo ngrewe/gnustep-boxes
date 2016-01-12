@@ -39,9 +39,40 @@ rm -rf /usr/local/lib/python2.7
 
 apt-get -y purge libyaml-dev python-dev python-pip ppp pppconfig pppoeconf popularity-contest
 
+if [ "x${CONTAINER_FLAVOUR}" = "xrt" ]
+then
+
+# we don't need python or perl anymore anymore
+apt-get -y purge python2.7 python perl perl-modules
+
+# locales still occupy way too much space
+cat > /tmp/localepurge.preseed << EOF
+localepurge	localepurge/remove_no	note
+localepurge localepurge/use-dpkg-feature boolean true
+localepurge	localepurge/dontbothernew	boolean	false
+localepurge	localepurge/showfreedspace	boolean	true
+localepurge	localepurge/none_selected	boolean	false
+localepurge	localepurge/verbose	boolean	false
+localepurge	localepurge/nopurge	multiselect	en
+localepurge	localepurge/quickndirtycalc	boolean	true
+localepurge	localepurge/mandelete	boolean	true
+EOF
+debconf-set-selections < /tmp/localepurge.preseed
+rm -f /tmp/localepurge.preseed
+
+apt-get -y install localepurge
+
+dpkg-reconfigure -f noninteractive localepurge
+localepurge
+apt-get -y purge localepurge locales
+
+fi
+
 apt-get -y autoremove
 apt-get -y clean
+rm -rf /var/lib/apt/lists/*
 
+/usr/local/bin/defaults read
 echo "Removing build files"
 rm -rf $HOME/builds
 rm -rf $HOME/llvm
@@ -88,4 +119,5 @@ rm -f /EMPTY;
 # Block until the empty file has been removed, otherwise, Packer
 # will try to kill the box while the disk is still full and that's bad
 sync;
+
 fi
