@@ -16,9 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -e
-set -x
-
 # Delete all Linux headers
 dpkg --list \
   | awk '{ print $2 }' \
@@ -37,20 +34,10 @@ dpkg --list \
     | grep linux-source \
     | xargs apt-get -y purge;
 
-
-echo "Removing ansible"
 pip uninstall -y ansible
-
-echo "Removing all other locally installed python packages"
 rm -rf /usr/local/lib/python2.7
 
-apt-get -y purge libyaml-dev python-dev python-pip
-
-# Delete obsolete networking
-apt-get -y purge ppp pppconfig pppoeconf;
-
-# Delete oddities
-apt-get -y purge popularity-contest;
+apt-get -y purge libyaml-dev python-dev python-pip ppp pppconfig pppoeconf popularity-contest
 
 apt-get -y autoremove
 apt-get -y clean

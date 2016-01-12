@@ -15,7 +15,8 @@
         "keymap": "us",
         "atlas_artifact": "ngrewe/gnustep-headless",
         "atlas_version": "0.0.2",
-        "atlas_description": "A basic set of tools for GNUstep development, based on Debian 8."
+        "atlas_description": "A basic set of tools for GNUstep development, based on Debian 8.",
+        "container_flavour": "dev"
     },
     "builders": [
         {   "type": "vmware-iso",
@@ -107,12 +108,15 @@
             "volumes": {
                 "{{pwd}}": "/vagrant"
             },
-            "export_path": "output-{{user `template_name`}}-docker-image.tar"
+            "export_path": "output-{{user `template_name`}}-{{user `container_flavour`}}-docker.tar"
         }
     ],
     "provisioners": [
         {
             "type": "shell",
+            "environment_vars": [
+                "CONTAINER_FLAVOUR={{user `container_flavour`}}"
+            ],
             "execute_command": "echo 'vagrant'|sudo -S env {{ .Vars }} sh -eux '{{.Path}}'",
             "scripts": [
                 "packer/scripts/00-packages.sh"
@@ -199,20 +203,26 @@
             "inventory_groups": "headless",
             "override": {
                 "docker": {
-                    "extra_arguments": [ "-vvv", "--skip-tags=gdomap" ]
+                    "extra_arguments": [ "--skip-tags=gdomap" ]
                 }
             }
         },
         {
             "type": "shell",
-            "execute_command": "echo 'vagrant'|sudo -S env {{ .Vars }} sh -eux '{{.Path}}'",
+            "environment_vars": [ ],
+            "execute_command":
+              "echo 'vagrant'|sudo -S env {{ .Vars }} sh -eux '{{.Path}}'",
             "scripts": [
                 "packer/scripts/98-grub.sh",
                 "packer/scripts/99-cleanup.sh"
             ],
             "override": {
                "docker": {
+                   "environment_vars": [
+                       "CONTAINER_FLAVOUR={{user `container_flavour`}}"
+                   ],
                    "scripts": [
+                       "packer/scripts/docker/99-cleanup.sh",
                        "packer/scripts/99-cleanup.sh"
                    ],
                    "execute_command" : "env {{ .Vars }} sh -eux '{{.Path}}'"
