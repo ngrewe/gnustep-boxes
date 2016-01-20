@@ -44,7 +44,7 @@
     - dev-dependencies
 
 - name: Configure gnustep-base
-  command: "./configure --with-gdomap-port={{gnustep.base.gdomap.port}} --with-sort-algorithm={{gnustep.base.sort_alg}} CC=cc CXX=c++"
+  command: "./configure --with-gdomap-port={{gnustep.base.gdomap.port}} --with-sort-algorithm={{gnustep.base.sort_alg}} --disable-mixedabi CC=cc CXX=c++"
   args:
     chdir: "{{ gnustep.base.src_dir }}"
 - name: Build gnustep-base

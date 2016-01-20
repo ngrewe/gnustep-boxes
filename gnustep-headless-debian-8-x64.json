@@ -14,10 +14,14 @@
         "locale": "en_US",
         "keymap": "us",
         "atlas_artifact": "ngrewe/gnustep-headless",
-        "atlas_version": "0.0.2",
+        "atlas_version": "0.0.{{isotime \"20060102\"}}",
         "atlas_description": "A basic set of tools for GNUstep development, based on Debian 8.",
         "container_flavour": "dev",
-        "container_tag": "latest"
+        "container_tag": "{{isotime \"20060102\"}}",
+        "docker_hub_username": "ngrewe",
+        "docker_hub_email": "",
+        "docker_hub_password": "{{env `DOCKER_HUB_PASSWORD`}}"
+
     },
     "builders": [
         {   "type": "vmware-iso",
@@ -109,7 +113,7 @@
             "volumes": {
                 "{{pwd}}": "/vagrant"
             },
-            "export_path": "output-{{user `template_name`}}-{{user `container_flavour`}}-docker.tar"
+            "commit": true
         }
     ],
     "provisioners": [
@@ -211,7 +215,9 @@
         },
         {
             "type": "shell",
-            "environment_vars": [ ],
+            "environment_vars": [
+                "CONTAINER_FLAVOUR={{user `container_flavour`}}"
+            ],
             "execute_command":
               "echo 'vagrant'|sudo -S env {{ .Vars }} sh -eux '{{.Path}}'",
             "scripts": [
@@ -220,9 +226,6 @@
             ],
             "override": {
                "docker": {
-                   "environment_vars": [
-                       "CONTAINER_FLAVOUR={{user `container_flavour`}}"
-                   ],
                    "scripts": [
                        "packer/scripts/docker/99-cleanup.sh",
                        "packer/scripts/99-cleanup.sh"
@@ -265,11 +268,36 @@
         ],
         [
             {
-                "type": "docker-import",
+                "type": "docker-tag",
                 "repository": "ngrewe/gnustep-headless-{{user `container_flavour`}}",
                 "tag": "{{user `container_tag`}}",
                 "only": [ "docker" ]
+            },
+            {
+                "type": "docker-push",
+                "login": true,
+                "login_username": "{{user `docker_hub_username`}}",
+                "login_email": "{{user `docker_hub_email`}}",
+                "login_password": "{{user `docker_hub_password`}}",
+                "only": [ "docker" ]
             }
-       ]
+       ],
+       [
+           {
+               "type": "docker-tag",
+               "repository": "ngrewe/gnustep-headless-{{user `container_flavour`}}",
+               "tag": "latest",
+               "force": true,
+               "only": [ "docker" ]
+           },
+           {
+               "type": "docker-push",
+               "login": true,
+               "login_username": "{{user `docker_hub_username`}}",
+               "login_email": "{{user `docker_hub_email`}}",
+               "login_password": "{{user `docker_hub_password`}}",
+               "only": [ "docker" ]
+           }
+      ]
     ]
 }
