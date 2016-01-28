@@ -1,5 +1,13 @@
 #!/bin/sh -eux
 
+# If running on docker:
+# The /vagrant directory is bound in from the host, so we don't want
+# to leave any unclean repositories
+cd /vagrant/gnustep-make
+make clean
+cd /vagrant/gnustep-base
+make clean
+
 if [ "x${CONTAINER_FLAVOUR}" = "xrt" ]
 then
 
