@@ -1,0 +1,13 @@
+{
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ngrewe/gnustep-boxes.git"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-if": "^2.0.0",
+    "gulp-prompt": "^0.1.2",
+    "gulp-shell": "^0.5.2",
+    "minimist": "^1.2.0"
+  }
+}

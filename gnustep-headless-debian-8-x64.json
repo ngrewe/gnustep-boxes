@@ -19,7 +19,7 @@
         "container_flavour": "dev",
         "container_tag": "{{isotime \"20060102\"}}",
         "docker_hub_username": "ngrewe",
-        "docker_hub_email": "",
+        "docker_hub_email": "{{env `DOCKER_HUB_EMAIL`}}",
         "docker_hub_password": "{{env `DOCKER_HUB_PASSWORD`}}"
 
     },
@@ -42,7 +42,7 @@
                 "keyboard-configuration/xkb-keymap={{user `keymap`}} <wait>",
                 "<enter><wait>"
             ],
-            "boot_wait": "10s",
+            "boot_wait": "30s",
             "disk_size": "{{user `disk_size`}}",
             "guest_os_type": "debian8-64",
             "http_directory": "packer/http",
@@ -83,7 +83,7 @@
                 "keyboard-configuration/xkb-keymap={{user `keymap`}} <wait>",
                 "<enter><wait>"
             ],
-            "boot_wait": "10s",
+            "boot_wait": "30s",
             "hard_drive_interface": "sata",
             "disk_size": "{{user `disk_size`}}",
             "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",

@@ -6,3 +6,6 @@ packer_cache/
 # For built boxes
 builds/
 output-*/
+
+# node.js
+node_modules/

@@ -183,6 +183,37 @@ packer build gnustep-gui-debian-8-x64.json
 The resulting Vagrant boxes are placed in the `builds/` directory.
 Intermediate artifacts may be available in the `output-*` directories.
 
+Building the runtime Docker container can be done using:
+
+```
+packer build --var container_flavour=rt gnustep-headless-debian-8-x64.json
+```
+
+Building boxes using Gulp
+-------------------------
+
+Building all components (headless and GUI Vagrant boxes, as well as development
+and runtime  Docker images) can be achieved using [Gulp](http://gulpjs.com). This is currently not
+very useful if you want to push to a non-standard location or customise the
+packer options in any way, but generally, it would work like this (assuming a
+working node.js installation):
+
+```
+npm install --global gulp-cli
+npm install
+gulp --docker-hub-email=foo@example.com
+```
+
+Prior to building the boxes, Gulp will ask you for the docker hub password to
+use when pushing the box. It will be stored in an environment variable for packer (so that it doesn't appear on any command line). The following command line switches are currently supported:
+
+* `--docker-hub-email` (string) specifies the email address of the docker hub account
+  used for pushing the image.
+* `--parallel` (boolean) turns on parallel building in packer. Your system needs a lot
+  of memory to support this
+* `--noninteractive` (boolean) turns of the password prompt.
+
+
 Known Issues
 ------------
 
@@ -192,8 +223,6 @@ Known Issues
   allocates 3GB of RAM to the virtual machine. If that still gives you failures
   when building LLVM/clang, trying increasing this value or allocating some more
   swap to the VM.
-* There is no makefile to orchestrate building both the headless and then the
-  gui image.
 
 License and Authors
 -------
