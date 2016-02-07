@@ -186,7 +186,7 @@ Intermediate artifacts may be available in the `output-*` directories.
 Building the runtime Docker container can be done using:
 
 ```
-packer build --var container_flavour=rt gnustep-headless-debian-8-x64.json
+packer build -var container_flavour=rt gnustep-headless-debian-8-x64.json
 ```
 
 Building boxes using Gulp
