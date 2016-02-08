@@ -7,3 +7,5 @@ gnustep:
     src_dir: "/vagrant/gnustep-gui"
   gorm:
     src_dir: "/vagrant/gorm"    
+rik:
+  src_dir: "/vagrant/rik.theme"

@@ -124,3 +124,23 @@
        - xauth
   tags:
     - dev-dependencies
+
+- name: Build rik.theme
+  shell: . /usr/local/share/GNUstep/Makefiles/GNUstep.sh && make
+  args:
+      chdir: "{{ rik.src_dir }}"
+  tags:
+      - theme
+
+- name: Install rik.theme
+  shell: . /usr/local/share/GNUstep/Makefiles/GNUstep.sh && make install
+  become: true
+  args:
+      chdir: "{{ rik.src_dir }}"
+  tags:
+      - theme
+- name: Register rik.theme as default
+  become: true
+  template: src=GlobalDefaults.plist.j2 dest=/usr/local/etc/GNUstep/GlobalDefaults.plist
+  tags:
+      - theme

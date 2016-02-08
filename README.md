@@ -155,6 +155,13 @@ Apple's InterfaceBuilder on GNUstep, it's quite useful to have the ability to sa
 and tweak the GNUstep UIs using Gorm.
 The git submodule references the github mirror of the GNUstep SVN repository.
 
+### Rik.theme
+
+The default look of GNUstep is very reminiscent of NeXTStep, which is not very
+attractive to many people nowadays. For that reason the GUI boxes include the
+[Rik.theme](https://github.com/AlessandroSangiuliano/rik.theme) as a git
+submodule.
+
 ### Vagrantfile
 
 The project also includes a Vagrantfile that runs the provisioning playbook on

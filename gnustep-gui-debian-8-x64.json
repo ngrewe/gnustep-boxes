@@ -72,6 +72,11 @@
             "destination": "/vagrant/gorm"
         },
         {
+            "type": "file",
+            "source": "rik.theme",
+            "destination": "/vagrant/rik.theme"
+        },
+        {
             "type": "ansible-local",
             "playbook_dir": "provisioning",
             "playbook_file": "provisioning/site.yml",

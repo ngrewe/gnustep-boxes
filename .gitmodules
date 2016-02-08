@@ -19,3 +19,6 @@
 [submodule "gorm"]
 	path = gorm
 	url = https://github.com/gnustep/gorm.git
+[submodule "rik.theme"]
+	path = rik.theme
+	url = https://github.com/AlessandroSangiuliano/rik.theme.git
