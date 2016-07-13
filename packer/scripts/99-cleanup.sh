@@ -43,7 +43,7 @@ if [ "x${CONTAINER_FLAVOUR}" = "xrt" ]
 then
 
 # we don't need python or perl anymore anymore
-apt-get -y purge python2.7 python perl perl-modules
+apt-get -y purge python2.7 python perl perl-modules libssl-dev libffi-dev
 
 # locales still occupy way too much space
 cat > /tmp/localepurge.preseed << EOF
@@ -76,6 +76,8 @@ rm -rf /var/lib/apt/lists/*
 echo "Removing build files"
 rm -rf $HOME/builds
 rm -rf $HOME/llvm
+rm -rf /home/vagrant/builds
+rm -rf /home/vagrant/llvm
 
 if [ "x$PACKER_BUILDER_TYPE" != "xdocker" ]
 then

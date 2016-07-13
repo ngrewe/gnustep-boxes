@@ -13,7 +13,7 @@
        - zip
        - unzip
        - cmake
-       - g++
+       - clang
        - lemon
        - zlib1g-dev
   tags:
@@ -59,7 +59,7 @@
       - clang
 
 - name: Generate build files
-  command: cmake -G "{{ llvm.generator }}" -DCMAKE_BUILD_TYPE={{ llvm.build_type }} -DLLVM_TARGETS_TO_BUILD={{ llvm.targets }} {{ llvm.src_dir }} chdir={{ llvm.build_dir }}
+  command: cmake -G "{{ llvm.generator }}" -DCMAKE_BUILD_TYPE={{ llvm.build_type }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_TARGETS_TO_BUILD={{ llvm.targets }} {{ llvm.src_dir }} chdir={{ llvm.build_dir }}
   when: llvm_checkout.changed or clang_checkout.changed
   tags:
       - clang
@@ -69,6 +69,15 @@
   when: llvm_checkout.changed or clang_checkout.changed
   tags:
       - clang
+- name: Remove packaged clang
+  apt: pkg={{item}} state=absent
+  become: true
+  with_items:
+       - clang
+       - libobjc-4.9-dev
+       - libobjc4
+  tags:
+      - dev-dependencies
 
 - name: Install LLVM/clang
   command: "{{ llvm_buildtool }} install chdir={{ llvm.build_dir }}"
