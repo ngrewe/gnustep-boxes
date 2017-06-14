@@ -1,16 +1,24 @@
 ---
-- name: Install docker apt key
-  apt_key: keyserver=p80.pool.sks-keyservers.net id=58118E89F3A912897C070ADBF76221572C52609D
-  become: true
-
 - name: Install https apt transport
   apt: pkg=apt-transport-https state=installed
   become: true
+  with_items:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg2
+    - software-properties-common
 
-- name: Install docker apt repository
-  apt_repository: repo="deb https://apt.dockerproject.org/repo debian-jessie main" state=present update_cache=true
+- name: Install docker apt key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
   become: true
 
-- name: Install docker-engine
-  apt: pkg=docker-engine state=installed
+- name: Install docker apt repository
+  apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/debian jessie stable" state=present update_cache=true
+  become: true
+
+- name: Install docker-ce
+  apt: pkg=docker-ce state=installed
   become: true

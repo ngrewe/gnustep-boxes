@@ -34,7 +34,6 @@ dpkg --list \
     | grep linux-source \
     | xargs apt-get -y purge;
 
-pip uninstall -y ansible
 rm -rf /usr/local/lib/python2.7
 
 apt-get -y purge libyaml-dev python-dev python-pip ppp pppconfig pppoeconf popularity-contest

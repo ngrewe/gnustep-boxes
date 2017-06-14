@@ -6,19 +6,19 @@
 	url = https://github.com/ngrewe/libdispatch.git
 [submodule "gnustep-make"]
 	path = gnustep-make
-	url = https://github.com/gnustep/make.git
+	url = https://github.com/gnustep/tools-make.git
 [submodule "gnustep-base"]
 	path = gnustep-base
-	url = https://github.com/gnustep/base.git
+	url = https://github.com/gnustep/libs-base.git
 [submodule "gnustep-back"]
 	path = gnustep-back
-	url = https://github.com/gnustep/back.git
+	url = https://github.com/gnustep/libs-back.git
 [submodule "gnustep-gui"]
 	path = gnustep-gui
-	url = https://github.com/gnustep/gui.git
+	url = https://github.com/gnustep/libs-gui.git
 [submodule "gorm"]
 	path = gorm
-	url = https://github.com/gnustep/gorm.git
+	url = https://github.com/gnustep/apps-gorm.git
 [submodule "rik.theme"]
 	path = rik.theme
 	url = https://github.com/AlessandroSangiuliano/rik.theme.git

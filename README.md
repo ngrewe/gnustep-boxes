@@ -91,11 +91,7 @@ without a GUI:
 
 #### LLVM and clang
 
-The provisioner builds LLVM and clang version 3.7.1 from source. The build will
-be a release build with the X86, ARM, AArch64 and Mips targets enabled. The
-reason for doing this is that the clang packages that ship with Debian/Ubuntu
-depend on the Objective-C runtime shipped with GCC, which does not support
-things like ARC etc. and introduces a confusion that we want to avoid.
+The provisioner installs the current binaries for LLVM 4.0.0.
 
 #### GNUstep Objective-C runtime
 
@@ -125,9 +121,6 @@ GNUstep Base is the GNUstep implementation of the Foundation API. The git
 submodule references the github mirror of the GNUstep SVN repository. The
 library has the following configuration points to note:
 
-* It's configured to use the timsort sorting algorithm. It's the most performant
-of the available algorithms for real-world workloads, but it hasn't seen much
-testing because it's not the default.
 * The distributed objects nameserver (gdomap) has been moved to a port > 1024 so
 that it can run as a normal user without special privileges. It's automatically
 started by a systemd unit.
@@ -241,7 +234,7 @@ licensed under the Apache license.
 
 The original content in this project is governed by the MIT License:
 
-Copyright (c) 2015 Niels Grewe
+Copyright (c) 2015–2017 Niels Grewe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

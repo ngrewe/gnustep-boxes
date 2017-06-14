@@ -13,76 +13,38 @@
        - zip
        - unzip
        - cmake
-       - clang
        - lemon
+       - xz-utils
        - zlib1g-dev
   tags:
       - dev-dependencies
 
-- name: Install ninja build tool
-  apt: pkg=ninja-build state=installed
+- name: Check if clang is already unpacked
+  check_mode: False
+  changed_when: False
+  failed_when: False
+  command: clang --version |grep -q 'clang version {{llvm.version|regex_escape()}}'
+  register: clang_check
+
+- name: Download clang+llvm
+  get_url:
+    url: 'http://releases.llvm.org/{{llvm.version}}/clang+llvm-{{llvm.version}}-x86_64-linux-gnu-debian8.tar.xz'
+    dest: /vagrant/clang.tar.xz
+    checksum: '{{llvm.checksums[llvm.version]}}'
+  when: clang_check.rc != 0
+  tags:
+    - clang
+
+- name: Unpack clang+llvm
+  unarchive:
+    remote_src: true
+    src: '/vagrant/clang.tar.xz'
+    dest: /usr/local
+    extra_opts:
+      - '--strip-components=1'
+    creates: /usr/local/bin/clang
+  when: clang_check.rc != 0
   become: true
-  when: llvm.generator == 'Ninja'
-  tags:
-      - dev-dependencies
-      - clang
-
-- name: Register make as the LLVM build tool fact
-  set_fact:
-    llvm_buildtool: make
-  when: llvm.generator != 'Ninja'
-  tags:
-      - clang
-
-- name: Register ninja as the LLVM build tool fact
-  set_fact:
-    llvm_buildtool: ninja
-  when: llvm.generator == 'Ninja'
-  tags:
-      - clang
-
-- name: Checkout LLVM
-  subversion: repo={{ llvm.llvm_repo }} dest={{ llvm.src_dir }}
-  register: llvm_checkout
-  tags:
-      - clang
-
-- name: Checkout clang
-  subversion: repo={{ llvm.clang_repo }} dest={{ llvm.src_dir }}/tools/clang
-  register: clang_checkout
-  tags:
-      - clang
-
-- name: Create llvm build directory
-  file: path={{ llvm.build_dir }} state=directory
-  tags:
-      - clang
-
-- name: Generate build files
-  command: cmake -G "{{ llvm.generator }}" -DCMAKE_BUILD_TYPE={{ llvm.build_type }} -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DLLVM_TARGETS_TO_BUILD={{ llvm.targets }} {{ llvm.src_dir }} chdir={{ llvm.build_dir }}
-  when: llvm_checkout.changed or clang_checkout.changed
-  tags:
-      - clang
-
-- name: Build LLVM/clang
-  command: "{{ llvm_buildtool }} chdir={{ llvm.build_dir }}"
-  when: llvm_checkout.changed or clang_checkout.changed
-  tags:
-      - clang
-- name: Remove packaged clang
-  apt: pkg={{item}} state=absent
-  become: true
-  with_items:
-       - clang
-       - libobjc-4.9-dev
-       - libobjc4
-  tags:
-      - dev-dependencies
-
-- name: Install LLVM/clang
-  command: "{{ llvm_buildtool }} install chdir={{ llvm.build_dir }}"
-  become: true
-  when: llvm_checkout.changed or clang_checkout.changed
   tags:
       - clang
 

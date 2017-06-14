@@ -9,3 +9,5 @@ output-*/
 
 # node.js
 node_modules/
+# Ansible stuff
+site.retry
